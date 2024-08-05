@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  elastic:
+    image: bitnami/elasticsearch:latest
+    container_name: elastic
+    environment:
+      - node.name=es01
+      - cluster.name=es-docker-cluster
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms128m -Xmx512m"
+      - ELASTIC_USERNAME=elastic
+      - ELASTIC_PASSWORD=adhikari
+      - xpack.security.enabled=false
+      - xpack.security.enrollment.enabled=true
+      #- ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=config/certs/ca/ca.crt
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - 9200:9200
+    networks:
+      - esnet
+    
+  kib01:
+    image: bitnami/kibana:latest
+    container_name: kibana
+    ports:
+      - 5601:5601
+    environment:
+      - ELASTICSEARCH_URL=http://localhost:9200
+      - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=config/certs/ca/ca.crt
+    networks:
+      - esnet
+networks:
+  esnet:
